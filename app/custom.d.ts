@@ -3,7 +3,7 @@ interface SharedWorkerGlobalScope {
   onconnect: (event: MessageEvent) => void;
 }
 
-declare var self: SharedWorkerGlobalScope;
+declare let self: SharedWorkerGlobalScope;
 
 // Si vous avez besoin de déclarer d'autres types pour les Web Workers
 declare module "worker-loader!*" {
