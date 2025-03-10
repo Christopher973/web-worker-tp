@@ -1,36 +1,84 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Projet de Démonstration des Web Workers avec Next.js
 
-## Getting Started
+Ce projet est une démonstration pratique de l'utilisation des **Web Workers** dans une application **Next.js**. Il montre comment les Web Workers peuvent améliorer les performances en **déchargeant des calculs intensifs** du thread principal vers des threads de travail parallèles.
 
-First, run the development server:
+## À propos du projet
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+Cette application démontre trois types d'implémentations de Web Workers :
+
+- **Web Workers standard** - Dans la page `/webworker`
+- **Shared Workers** - Dans les pages `/multiply` et `/square`
+
+L'application permet de **comparer les performances** entre l'exécution de calculs intensifs dans le **thread principal** et leur exécution dans des **Web Workers séparés**.
+
+## Prérequis
+
+- **Node.js** (version 14 ou supérieure)
+- **npm** (généralement installé avec Node.js)
+- **Un navigateur web moderne** qui prend en charge les **Web Workers**
+
+## Installation
+
+Installez les dépendances :
+
+```sh
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Configuration
+Le projet utilise webpack avec worker-loader pour gérer les fichiers de Web Workers.
+Cette configuration est déjà présente dans le fichier next.config.ts.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Lancement du projet
+Pour démarrer l'application en mode développement :
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```sh
+npm run dev
+```
 
-## Learn More
+## Structure du projet
 
-To learn more about Next.js, take a look at the following resources:
+### Fonctionnalités
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+#### Page Web Worker (/webworker)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Cette page démontre un Web Worker standard qui effectue le calcul d'une puissance cubique (x³) sur un nombre. Elle permet de :
 
-## Deploy on Vercel
+- Exécuter le calcul dans le thread principal
+- Exécuter le même calcul dans un Web Worker
+- Comparer les temps d'exécution
+- Observer l'impact sur la réactivité de l'interface utilisateur
+- Pages Shared Worker (/multiply et /square)
+- Ces pages démontrent l'utilisation d'un Shared Worker partagé entre différentes pages. Le même Worker est utilisé pour :
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- Calculer le produit de deux nombres (/multiply)
+- Calculer le carré d'un nombre (/square)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Comment ça fonctionne
+
+#### Web Workers standard
+
+Le Web Worker principal est défini dans un fichier séparé pow3Worker.js. Quand un calcul est lancé :
+
+1. La page envoie le nombre au Worker avec :
+
+```js
+worker.postMessage(number);
+```
+
+2. Le Worker effectue le calcul et renvoie le résultat à la page.
+3. La page affiche le résultat et le temps d'exécution.
+
+### Shared Workers
+
+Le Shared Worker est défini dans sharedWorker.js. Il permet à plusieurs pages ou onglets de communiquer avec la même instance de Worker :
+
+1. Chaque page se connecte au même Worker avec :
+
+```js
+new SharedWorker("/workers/sharedWorker.js");
+```
+
+2. Les pages envoient des opérations différentes (multiplication ou carré).
+3. Le Worker traite les demandes et renvoie les résultats aux pages respectives.
+   markdown
