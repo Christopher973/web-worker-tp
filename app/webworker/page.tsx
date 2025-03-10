@@ -28,11 +28,30 @@ export default function WebWorker() {
       setWorker(workerInstance);
 
       workerInstance.onmessage = function (e: MessageEvent) {
-        const data = e.data as { result: number; duration: number };
-        setWorkerResult({
-          result: data.result,
-          duration: data.duration.toFixed(2),
-        });
+        console.log("Page: message reçu du worker", e.data);
+        const data = e.data as {
+          result?: number;
+          duration?: number;
+          error?: string;
+        };
+
+        if (data.error) {
+          console.error("Page: erreur reçue du worker", data.error);
+          setWorkerResult(null);
+        } else if (data.result !== undefined && data.duration !== undefined) {
+          setWorkerResult({
+            result: data.result,
+            duration: data.duration.toFixed(2),
+          });
+        } else {
+          console.error("Page: format de données inattendu", data);
+        }
+
+        setWorkerRunning(false);
+      };
+
+      workerInstance.onerror = function (error) {
+        console.error("Page: erreur dans le worker", error);
         setWorkerRunning(false);
       };
 
@@ -65,6 +84,7 @@ export default function WebWorker() {
     if (worker) {
       setWorkerRunning(true);
       setWorkerResult(null);
+      console.log("Page: envoi de la valeur au worker", number);
       worker.postMessage(number);
     }
   };
